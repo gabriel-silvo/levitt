@@ -1,0 +1,45 @@
+/* Adicionar ao final de src/App.css */
+
+.google-btn {
+  background-color: #4285F4;
+  color: white;
+}
+
+.google-btn:hover {
+  background-color: #357ae8;
+  border-color: #357ae8;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #888;
+  font-size: 0.9em;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #444;
+}
+
+.divider:not(:empty)::before {
+  margin-right: .25em;
+}
+
+.divider:not(:empty)::after {
+  margin-left: .25em;
+}
+
+.toggle-auth p {
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.toggle-auth span {
+  color: #64b5f6; /* Um azul claro */
+  cursor: pointer;
+  text-decoration: underline;
+}

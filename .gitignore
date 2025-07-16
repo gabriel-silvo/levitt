@@ -1,24 +1,28 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Arquivo .gitignore para o projeto monorepo Levitt
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependências de ambos os projetos
+levitt-frontend/node_modules
+levitt-backend/node_modules
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Arquivo de Ambiente do Backend (Segurança!)
+levitt-backend/.env
+
+# Logs e arquivos de runtime do Backend
+levitt-backend/logs
+levitt-backend/*.log
+levitt-backend/npm-debug.log*
+levitt-backend/yarn-debug.log*
+levitt-backend/yarn-error.log*
+
+# Arquivos de Build/Distribuição
+levitt-frontend/dist
+levitt-frontend/.vite
+levitt-backend/dist
+levitt-backend/build
+
+# Arquivos de Sistema Operacional
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# Arquivos de IDE
+.vscode/
