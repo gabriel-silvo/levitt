@@ -1,60 +1,165 @@
-// src/components/LoginPage.jsx
+// levitt-frontend/src/components/LoginPage.jsx
 
 import React, { useState } from 'react';
+import axios from 'axios'; // Importamos o Axios
+import { GoogleLogin } from '@react-oauth/google'; // Importa o componente de login
+import GoogleLogo from './GoogleLogo'; // Importa o nosso logo SVG
+
+// A URL base da nossa API. É uma boa prática defini-la em um só lugar.
+const API_URL = 'http://localhost:3001';
 
 function LoginPage({ onAuthAction }) {
   const [isRegistering, setIsRegistering] = useState(false);
+  
+  // Estados para controlar os campos do formulário
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
+  
+  // Estado para exibir mensagens de erro da API
+  const [error, setError] = useState('');
 
-  const handleGoogleLogin = () => {
-    console.log("Tentativa de login com Google...");
-    // Quando a lógica real for implementada, esta chamada virá
-    // dentro de um ".then()" ou após um "await" da resposta da API.
-    // Por enquanto, chamamos diretamente para simular.
-    onAuthAction(); 
+  const handleEmailAuth = async (event) => {
+    event.preventDefault();
+    setError(''); // Limpa erros anteriores
+
+    if (isRegistering && senha !== confirmacaoSenha) {
+      setError('As senhas não coincidem.');
+      return; // Interrompe a função se as senhas forem diferentes
+    }
+
+    const userData = { nome, email, senha };
+
+    try {
+      let response;
+      if (isRegistering) {
+        // --- LÓGICA DE REGISTRO ---
+        response = await axios.post(`${API_URL}/register`, userData);
+        console.log('Resposta do registro:', response.data);
+        // Após o registro bem-sucedido, podemos logar o usuário diretamente
+        // ou pedir que ele faça o login. Vamos logá-lo.
+        onAuthAction(); 
+      } else {
+        // --- LÓGICA DE LOGIN ---
+        response = await axios.post(`${API_URL}/login`, { email, senha });
+        console.log('Resposta do login:', response.data);
+        // Passamos o token recebido para a função do App.jsx
+        onAuthAction(response.data.token);
+      }
+    } catch (err) {
+      // Se a API retornar um erro (ex: email já existe, senha errada),
+      // o Axios o captura aqui.
+      console.error('Erro de autenticação:', err.response ? err.response.data : err.message);
+      // Exibimos a mensagem de erro que vem da nossa API
+      setError(err.response?.data?.error || 'Ocorreu um erro. Tente novamente.');
+    }
   };
 
-  const handleEmailAuth = (event) => {
-    event.preventDefault(); 
-    if (isRegistering) {
-      console.log("Tentativa de cadastro com email/senha...");
-    } else {
-      console.log("Tentativa de login com email/senha...");
+  // A lógica do Google Login será implementada depois
+  const handleGoogleLoginSuccess = async (credentialResponse) => {
+    setError('');
+    console.log("Token do Google recebido:", credentialResponse);
+    try {
+      // Enviamos o token do Google para o nosso backend
+      const response = await axios.post(`${API_URL}/auth/google-login`, {
+        token: credentialResponse.credential,
+      });
+
+      // Se o backend responder com sucesso, ele nos dará o nosso próprio token de app
+      console.log("Resposta do nosso backend:", response.data);
+      onAuthAction(response.data.token); // Loga o usuário na nossa aplicação
+    } catch (err) {
+      console.error('Erro no login com Google:', err.response ? err.response.data : err.message);
+      setError(err.response?.data?.error || 'Falha na autenticação com Google.');
     }
-    // O mesmo aqui: chamamos diretamente para a simulação funcionar.
-    onAuthAction();
+  };
+
+  const handleGoogleLoginError = () => {
+    setError('Falha na autenticação com Google.');
   };
 
   return (
     <div className="login-container">
-      <h1>{isRegistering ? 'Criar Conta' : 'Bem-vindo ao Levitt'}</h1>
-      
-      <button className="google-btn" onClick={handleGoogleLogin}>
-        Entrar com Google
-      </button>
+      <h1>{isRegistering ? 'Criar Conta' : 'Levitt'}</h1>
+
+      <div className="google-login-button-container">
+        <GoogleLogin
+          onSuccess={handleGoogleLoginSuccess}
+          onError={handleGoogleLoginError}
+          shape="rectangular"
+          theme="outline"
+          size="large"
+          text="continue_with"
+        />
+      </div>
 
       <div className="divider">
         <span>ou</span>
       </div>
 
+      {/* Exibidor de mensagem de erro */}
+      {error && <p className="error-message">{error}</p>}
+
       <form className="login-form" onSubmit={handleEmailAuth}>
         {isRegistering && (
-            <input type="text" placeholder="Seu Nome" required />
+          <> {/* Usamos um fragment <> para agrupar os inputs */}
+            <input 
+              type="text" 
+              placeholder="Seu Nome" 
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              required 
+            />
+            {/* Campo de Senha original */}
+            <input 
+              type="password" 
+              placeholder="Senha" 
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              required 
+            />
+            {/* NOVO CAMPO de Confirmação de Senha */}
+            <input 
+              type="password" 
+              placeholder="Confirme a Senha" 
+              value={confirmacaoSenha}
+              onChange={(e) => setConfirmacaoSenha(e.target.value)}
+              required 
+            />
+          </>
         )}
-        <input type="email" placeholder="Email" required />
-        <input type="password" placeholder="Senha" required />
-        <button type="submit">{isRegistering ? 'Cadastrar' : 'Entrar'}</button>
+        {!isRegistering && (
+          <>
+            <input 
+              type="email" 
+              placeholder="Email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required 
+            />
+            <input 
+              type="password" 
+              placeholder="Senha" 
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              required 
+            />
+          </>
+        )}
+        <button type="submit">{isRegistering ? 'Criar Conta' : 'Entrar'}</button>
       </form>
 
       <div className="toggle-auth">
         {isRegistering ? (
           <p>
             Já tem uma conta?{' '}
-            <span onClick={() => setIsRegistering(false)}>Faça o login</span>
+            <span onClick={() => { setIsRegistering(false); setError(''); }}>Faça o login</span>
           </p>
         ) : (
           <p>
             Não tem uma conta?{' '}
-            <span onClick={() => setIsRegistering(true)}>Cadastre-se</span>
+            <span onClick={() => { setIsRegistering(true); setError(''); }}>Cadastre-se</span>
           </p>
         )}
       </div>

@@ -1,13 +1,93 @@
-/* Adicionar ao final de src/App.css */
+/* levitt-frontend/src/App.css */
 
-.google-btn {
-  background-color: #4285F4;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* --- RESET E NORMALIZAÇÃO DA FUNDAÇÃO --- */
+/* Esta é a correção mais importante. Garante que a base da página ocupe todo o espaço. */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #242424; /* Mova o background para o body */
+}
+
+/* Estilo base para o .App */
+.App {
+  width: 100%;
+  min-height: 100%;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* ESTILO DE LAYOUT APENAS PARA A TELA DE LOGOUT (LOGIN) */
+.App--loggedout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Container da tela de login */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #2f2f2f;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  align-items: stretch;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+/* --- RESTANTE DO SEU CSS (SEM ALTERAÇÕES) --- */
+
+input {
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #333;
   color: white;
 }
 
-.google-btn:hover {
-  background-color: #357ae8;
-  border-color: #357ae8;
+button {
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 500;
+  font-family: inherit;
+  /* CORREÇÃO DE COR DO BOTÃO: mudei de volta para um tom mais escuro */
+  background-color: #646cff;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+/* Estiliza a "caixa" que segura o botão */
+.google-login-button-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Força o botão gerado pela biblioteca a se esticar */
+.google-login-button-container > div {
+  width: 100% !important;
 }
 
 .divider {
@@ -16,6 +96,7 @@
   text-align: center;
   color: #888;
   font-size: 0.9em;
+  margin: 1rem 0;
 }
 
 .divider::before,
@@ -25,13 +106,8 @@
   border-bottom: 1px solid #444;
 }
 
-.divider:not(:empty)::before {
-  margin-right: .25em;
-}
-
-.divider:not(:empty)::after {
-  margin-left: .25em;
-}
+.divider:not(:empty)::before { margin-right: .25em; }
+.divider:not(:empty)::after { margin-left: .25em; }
 
 .toggle-auth p {
   font-size: 0.9em;
@@ -39,7 +115,125 @@
 }
 
 .toggle-auth span {
-  color: #64b5f6; /* Um azul claro */
+  color: #64b5f6;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.error-message {
+  color: #ff8a80;
+  background-color: #4e2a2a;
+  border: 1px solid #ff5252;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.9em;
+  margin-bottom: 1rem;
+}
+
+/* --- ESTILOS PARA HOMEPAGE E HEADER --- */
+
+.homepage-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  width: 100%;
+  background-color: #1a1a1a;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  border-bottom: 1px solid #444;
+  flex-shrink: 0; /* Impede que o header encolha */
+}
+
+.main-header .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.avatar-container {
+  cursor: pointer;
+}
+
+.avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-initials {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #646cff;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: #2f2f2f;
+  border: 1px solid #444;
+  border-radius: 8px;
+  width: 220px;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.dropdown-header {
+  padding: 1rem;
+  border-bottom: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-header small {
+  font-size: 0.8em;
+  color: #aaa;
+  word-break: break-all;
+}
+
+.dropdown-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dropdown-menu li button {
+  width: 100%;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  background-color: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dropdown-menu li button:hover {
+  background-color: #646cff;
+  border-color: transparent;
+}
+
+.main-content {
+  padding: 2rem;
+  flex-grow: 1;
+  text-align: left;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto; /* Centraliza o conteúdo principal */
 }
