@@ -30,42 +30,52 @@ app.get('/', (req, res) => {
 });
 
 /**
- * ROTA DE REGISTRO DE USUÁRIO
- * Método: POST
- * Corpo da requisição: { nome, email, senha, data_nascimento, igreja_local }
+ * ROTA DE REGISTRO DE USUÁRIO - VERSÃO ATUALIZADA COM GERAÇÃO DE TOKEN
  */
 app.post('/register', async (req, res) => {
   const { nome, email, senha, data_nascimento, igreja_local } = req.body;
 
-  // Validação básica
   if (!nome || !email || !senha) {
     return res.status(400).json({ error: 'Nome, email e senha são obrigatórios.' });
   }
 
   try {
-    // 1. Verificar se o usuário já existe
     const existingUser = await userQueries.findUserByEmail(email);
     if (existingUser) {
-      return res.status(409).json({ error: 'Este email já está em uso.' }); // 409 Conflict
+      return res.status(409).json({ error: 'Este email já está em uso.' });
     }
 
-    // 2. Criptografar a senha
-    const saltRounds = 10; // Fator de custo para o hash
+    const saltRounds = 10;
     const senha_hash = await bcrypt.hash(senha, saltRounds);
 
-    // 3. Criar o novo usuário no banco de dados
     const newUser = await userQueries.createUser({
       nome,
       email,
-      senha_hash, // Passando a senha criptografada
+      senha_hash,
       data_nascimento,
       igreja_local,
     });
 
-    // 4. Enviar resposta de sucesso
+    // --- CORREÇÃO PRINCIPAL AQUI ---
+    // 1. Gera o payload para o nosso token
+    const payload = { 
+      id: newUser.id, 
+      email: newUser.email, 
+      nome: newUser.nome,
+      imagem_url: newUser.imagem_url,
+      igreja_local: user.igreja_local,
+      data_nascimento: user.data_nascimento,
+      telefone: user.telefone
+    };
+
+    // 2. Assina e cria o token
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    // 3. Envia o token na resposta de sucesso
     res.status(201).json({
       message: 'Usuário criado com sucesso!',
-      user: newUser, // Retorna os dados do usuário criado (sem a senha)
+      user: payload,
+      token: token, // O frontend agora receberá o token!
     });
 
   } catch (error) {
@@ -107,6 +117,10 @@ app.post('/login', async (req, res) => {
       id: user.id,
       email: user.email,
       nome: user.nome,
+      imagem_url: user.imagem_url,
+      igreja_local: user.igreja_local,
+      data_nascimento: user.data_nascimento,
+      telefone: user.telefone
     };
 
     // 2. Assine o token com o segredo do .env
@@ -142,13 +156,21 @@ app.post('/auth/google-login', async (req, res) => {
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
-        const { sub: google_id, email, name: nome } = ticket.getPayload();
+        const { sub: google_id, email, name: nome, picture: imagem_url } = ticket.getPayload();
 
         // 2. Encontra ou cria o usuário em nosso banco de dados
-        const user = await userQueries.findOrCreateUserByGoogle({ google_id, email, nome });
+        const user = await userQueries.findOrCreateUserByGoogle({ google_id, email, nome, imagem_url });
 
         // 3. Gera o nosso próprio token JWT para a nossa aplicação
-        const payload = { id: user.id, email: user.email, nome: user.nome };
+        const payload = {
+          id: user.id,
+          email: user.email,
+          nome: user.nome,
+          imagem_url: user.imagem_url,
+          igreja_local: user.igreja_local,
+          data_nascimento: user.data_nascimento,
+          telefone: user.telefone
+        };
         const appToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
         // 4. Envia nosso token de volta para o frontend
@@ -209,5 +231,40 @@ app.put('/api/users/me/avatar', authMiddleware, upload.single('avatar'), async (
   } catch (error) {
     console.error('Erro ao atualizar avatar:', error);
     res.status(500).json({ error: 'Ocorreu um erro no servidor ao atualizar o avatar.' });
+  }
+});
+
+/**
+ * ROTA PARA ATUALIZAR AS INFORMAÇÕES DO USUÁRIO
+ * Método: PUT
+ * Rota protegida por autenticação JWT
+ */
+app.put('/api/users/me', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id; // Pega o ID do usuário a partir do token
+    const userData = req.body; // Pega os novos dados do corpo da requisição
+
+    const updatedUser = await userQueries.updateUserInfo(userId, userData);
+
+    // Precisamos gerar um novo token com as informações atualizadas
+    const payload = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      nome: updatedUser.nome,
+      imagem_url: updatedUser.imagem_url,
+      igreja_local: updatedUser.igreja_local,
+      data_nascimento: updatedUser.data_nascimento,
+      telefone: updatedUser.telefone
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    res.status(200).json({
+      message: 'Informações atualizadas com sucesso!',
+      user: payload,
+      token: token // Enviamos um novo token com os dados atualizados
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar informações do usuário:', error);
+    res.status(500).json({ error: 'Ocorreu um erro no servidor.' });
   }
 });

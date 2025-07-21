@@ -31,33 +31,41 @@ const userQueries = {
     return result.rows[0];
   },
 
-  findOrCreateUserByGoogle: async ({ google_id, email, nome }) => {
-    // Tenta encontrar o usuário pelo google_id primeiro
+  findOrCreateUserByGoogle: async ({ google_id, email, nome, imagem_url }) => {
+    // Passo 1: Tenta encontrar pelo google_id.
     let user = await db.query('SELECT * FROM usuarios WHERE google_id = $1', [google_id]);
     if (user.rows[0]) {
-        return user.rows[0]; // Retorna o usuário se encontrado
+        return user.rows[0];
     }
 
-    // Se não, tenta encontrar pelo email (caso ele já tenha uma conta local)
+    // Passo 2: Se não, tenta encontrar pelo email.
     user = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
     if (user.rows[0]) {
-        // Se encontrou por email, atualiza com o google_id para vincular as contas
-        const updatedUser = await db.query(
-            'UPDATE usuarios SET google_id = $1 WHERE email = $2 RETURNING *',
-            [google_id, email]
-        );
+        // Encontrou um usuário existente por email. Vamos vincular a conta.
+        const updateQuery = `
+            UPDATE usuarios
+            SET
+                google_id = $1,
+                imagem_url = COALESCE(imagem_url, $3) 
+            WHERE email = $2
+            RETURNING *;
+        `;
+        // Agora a variável 'imagem_url' existe e pode ser usada aqui.
+        const values = [google_id, email, imagem_url];
+        const updatedUser = await db.query(updateQuery, values);
+        
         return updatedUser.rows[0];
     }
 
-    // Se não encontrou de nenhuma forma, cria um novo usuário
-    // A senha será nula, pois a autenticação é via Google
-    const text = `
-        INSERT INTO usuarios(nome, email, google_id, senha_hash)
-        VALUES($1, $2, $3, NULL)
+    // Passo 3: Se não encontrou de nenhuma forma, cria um novo usuário.
+    const createQuery = `
+        INSERT INTO usuarios(nome, email, google_id, senha_hash, imagem_url)
+        VALUES($1, $2, $3, NULL, $4)
         RETURNING *;
     `;
-    const values = [nome, email, google_id];
-    const newUser = await db.query(text, values);
+    // E aqui também.
+    const createValues = [nome, email, google_id, imagem_url];
+    const newUser = await db.query(createQuery, createValues);
     return newUser.rows[0];
   },
 
@@ -69,6 +77,18 @@ const userQueries = {
       RETURNING id, email, nome, imagem_url;
     `;
     const values = [imageUrl, userId];
+    const result = await db.query(text, values);
+    return result.rows[0];
+  },
+
+  updateUserInfo: async (userId, { nome, igreja_local, data_nascimento, telefone }) => {
+    const text = `
+      UPDATE usuarios
+      SET nome = $1, igreja_local = $2, data_nascimento = $3, telefone = $4
+      WHERE id = $5
+      RETURNING id, email, nome, imagem_url, igreja_local, data_nascimento, telefone;
+    `;
+    const values = [nome, igreja_local, data_nascimento, telefone, userId];
     const result = await db.query(text, values);
     return result.rows[0];
   },

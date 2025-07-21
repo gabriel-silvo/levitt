@@ -3,20 +3,24 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Importamos o Axios
 import { GoogleLogin } from '@react-oauth/google'; // Importa o componente de login
+import { useAuth } from '../hooks/useAuth.jsx';
 import GoogleLogo from './GoogleLogo'; // Importa o nosso logo SVG
+import { EyeIcon } from './EyeIcon';
 
 // A URL base da nossa API. É uma boa prática defini-la em um só lugar.
 const API_URL = 'http://localhost:3001';
 
-function LoginPage({ onAuthAction }) {
+function LoginPage() {
+  const { login } = useAuth();
+
   const [isRegistering, setIsRegistering] = useState(false);
-  
   // Estados para controlar os campos do formulário
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
-  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmationPassword, setShowConfirmationPassword] = useState(false);
   // Estado para exibir mensagens de erro da API
   const [error, setError] = useState('');
 
@@ -39,13 +43,13 @@ function LoginPage({ onAuthAction }) {
         console.log('Resposta do registro:', response.data);
         // Após o registro bem-sucedido, podemos logar o usuário diretamente
         // ou pedir que ele faça o login. Vamos logá-lo.
-        onAuthAction(); 
+        login(response.data.token);
       } else {
         // --- LÓGICA DE LOGIN ---
         response = await axios.post(`${API_URL}/login`, { email, senha });
         console.log('Resposta do login:', response.data);
         // Passamos o token recebido para a função do App.jsx
-        onAuthAction(response.data.token);
+        login(response.data.token);
       }
     } catch (err) {
       // Se a API retornar um erro (ex: email já existe, senha errada),
@@ -68,7 +72,7 @@ function LoginPage({ onAuthAction }) {
 
       // Se o backend responder com sucesso, ele nos dará o nosso próprio token de app
       console.log("Resposta do nosso backend:", response.data);
-      onAuthAction(response.data.token); // Loga o usuário na nossa aplicação
+      login(response.data.token);
     } catch (err) {
       console.error('Erro no login com Google:', err.response ? err.response.data : err.message);
       setError(err.response?.data?.error || 'Falha na autenticação com Google.');
@@ -102,52 +106,60 @@ function LoginPage({ onAuthAction }) {
       {error && <p className="error-message">{error}</p>}
 
       <form className="login-form" onSubmit={handleEmailAuth}>
+
+        {/* O campo "Nome" só aparece durante o registro */}
         {isRegistering && (
-          <> {/* Usamos um fragment <> para agrupar os inputs */}
-            <input 
-              type="text" 
-              placeholder="Seu Nome" 
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required 
-            />
-            {/* Campo de Senha original */}
-            <input 
-              type="password" 
-              placeholder="Senha" 
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required 
-            />
-            {/* NOVO CAMPO de Confirmação de Senha */}
-            <input 
-              type="password" 
-              placeholder="Confirme a Senha" 
+          <input 
+            type="text" 
+            placeholder="Seu Nome" 
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            required 
+          />
+        )}
+
+        {/* O campo "Email" aparece tanto no login quanto no registro */}
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required 
+        />
+
+        {/* Campo de Senha principal, com o wrapper e o botão do olho */}
+        <div className="password-wrapper">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            required
+          />
+          <button type="button" className="eye-btn" onClick={() => setShowPassword(!showPassword)}>
+            <EyeIcon isToggled={showPassword} />
+          </button>
+        </div>
+
+        {/* O campo "Confirme a Senha" só aparece durante o registro */}
+        {isRegistering && (
+          <div className="password-wrapper">
+            <input
+              type={showConfirmationPassword ? 'text' : 'password'}
+              placeholder="Confirme a Senha"
               value={confirmacaoSenha}
               onChange={(e) => setConfirmacaoSenha(e.target.value)}
-              required 
+              required
             />
-          </>
+            <button type="button" className="eye-btn" onClick={() => setShowConfirmationPassword(!showConfirmationPassword)}>
+              <EyeIcon isToggled={showConfirmationPassword} />
+            </button>
+          </div>
         )}
-        {!isRegistering && (
-          <>
-            <input 
-              type="email" 
-              placeholder="Email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
-            <input 
-              type="password" 
-              placeholder="Senha" 
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required 
-            />
-          </>
-        )}
-        <button type="submit">{isRegistering ? 'Criar Conta' : 'Entrar'}</button>
+
+        {/* O botão de submit muda o texto dependendo do modo */}
+        <button type="submit" className="btn btn--primary" style={{width: '100%'}}>{isRegistering ? 'Criar Conta' : 'Entrar'}</button>
+
       </form>
 
       <div className="toggle-auth">
