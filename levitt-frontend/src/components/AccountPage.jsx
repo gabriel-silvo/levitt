@@ -1,7 +1,7 @@
 // src/components/AccountPage.jsx
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Modal from './Modal';
@@ -31,20 +31,47 @@ function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ nome: '', igreja_local: '', data_nascimento: '', telefone: '' });
   const [modalState, setModalState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+  const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
+  
+  // Estados para o modal de seleção de funções
+  const [allRoles, setAllRoles] = useState([]);
+  const [userSkills, setUserSkills] = useState([]);
+  const [tempSelectedSkills, setTempSelectedSkills] = useState(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estados de feedback
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Popula o formulário com dados do usuário
+
+  // Busca todos os dados necessários quando o componente carrega
   useEffect(() => {
-    if (user) {
-      setFormData({
-        nome: user.nome || '',
-        igreja_local: user.igreja_local || '',
-        data_nascimento: user.data_nascimento ? user.data_nascimento.split('T')[0] : '',
-        telefone: user.telefone || '',
-      });
-    }
+    const fetchData = async () => {
+      if (user) {
+        setFormData({
+          nome: user.nome || '',
+          igreja_local: user.igreja_local || '',
+          data_nascimento: user.data_nascimento ? user.data_nascimento.split('T')[0] : '',
+          telefone: user.telefone || '',
+        });
+
+        try {
+          // CORREÇÃO: Usamos 'api' e removemos os headers
+          const [rolesResponse, skillsResponse] = await Promise.all([
+            api.get('/api/roles'),
+            api.get('/api/users/me/skills')
+          ]);
+          
+          setAllRoles(rolesResponse.data);
+          const skillIds = new Set(skillsResponse.data);
+          setUserSkills(rolesResponse.data.filter(role => skillIds.has(role.id)));
+
+        } catch (err) {
+          console.error("Erro ao buscar cargos e habilidades", err);
+        }
+      }
+    };
+    fetchData();
   }, [user]);
 
   // Handlers (lógica interna sem mudanças)
@@ -57,9 +84,10 @@ function AccountPage() {
     const fileFormData = new FormData();
     fileFormData.append('avatar', file);
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await axios.put(`${API_URL}/api/users/me/avatar`, fileFormData, {
-        headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` },
+      // CORREÇÃO: Usamos 'api.put' e removemos o header 'Authorization'
+      // O interceptador irá adicionar o 'Authorization' ao lado do 'Content-Type'.
+      const response = await api.put('/api/users/me/avatar', fileFormData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMessage('Avatar atualizado!');
       login(response.data.token);
@@ -69,6 +97,7 @@ function AccountPage() {
       setIsLoading(false);
     }
   };
+
   const handleInfoChange = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); };
   const handleInfoSave = async (e) => {
     e.preventDefault();
@@ -80,10 +109,8 @@ function AccountPage() {
     setError('');
     setMessage('');
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await axios.put(`${API_URL}/api/users/me`, formData, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      // CORREÇÃO: Usamos 'api.put' e removemos os headers
+      const response = await api.put('/api/users/me', formData);
       setMessage('Informações salvas com sucesso!');
       login(response.data.token);
       setIsEditing(false);
@@ -93,6 +120,7 @@ function AccountPage() {
       setIsLoading(false);
     }
   };
+
   const handleLogoutClick = () => {
     setModalState({
       isOpen: true,
@@ -103,9 +131,101 @@ function AccountPage() {
       confirmClass: 'btn--primary'
     });
   };
+
+  const handleDeleteClick = () => {
+    setModalState({
+      isOpen: true,
+      title: 'DELETAR CONTA',
+      message: 'Esta ação é irreversível...',
+      onConfirm: async () => {
+        try {
+          // CORREÇÃO: Usamos 'api.delete' e removemos os headers
+          await api.delete('/api/users/me');
+          logout();
+          navigate('/login');
+        } catch (err) {
+          setError(err.response?.data?.error || 'Não foi possível deletar a conta.');
+          setModalState({ isOpen: false });
+        }
+      },
+      confirmText: 'Sim, deletar minha conta',
+      confirmClass: 'btn--danger'
+    });
+  };
+
+  const openSkillsModal = () => {
+    // Ao abrir o modal, carrega a seleção atual do usuário no estado temporário
+    const currentUserSkillIds = new Set(userSkills.map(skill => skill.id));
+    setTempSelectedSkills(currentUserSkillIds);
+    setIsSkillsModalOpen(true);
+  };
+
+  const handleRoleToggle = (roleId) => {
+    const newSelection = new Set(tempSelectedSkills);
+    if (newSelection.has(roleId)) {
+      newSelection.delete(roleId);
+    } else {
+      newSelection.add(roleId);
+    }
+    setTempSelectedSkills(newSelection);
+  };
+
+  const handleSkillsSave = async () => {
+    setIsLoading(true);
+    try {
+      const skillIds = Array.from(tempSelectedSkills);
+      // CORREÇÃO: Usamos 'api.put' e removemos os headers
+      await api.put('/api/users/me/skills', { skillIds });
+      setUserSkills(allRoles.filter(role => tempSelectedSkills.has(role.id)));
+      setIsSkillsModalOpen(false);
+    } catch(err) {
+      console.error('Erro ao salvar as funções.', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredRoles = allRoles.filter(role => 
+    role.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   
   return (
     <>
+      <Modal 
+        isOpen={isSkillsModalOpen}
+        onClose={() => setIsSkillsModalOpen(false)}
+        title="Selecione suas Funções"
+        // Vamos customizar os botões dentro do children
+        showFooter={false} 
+      >
+        <div className="skills-modal-content">
+          <input 
+            type="text" 
+            className="form-input search-input" 
+            placeholder="Pesquisar função..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <div className="skills-list">
+            {filteredRoles.map(role => (
+              <div 
+                key={role.id}
+                className={`skill-item ${tempSelectedSkills.has(role.id) ? 'selected' : ''}`}
+                onClick={() => handleRoleToggle(role.id)}
+              >
+                {role.nome}
+              </div>
+            ))}
+          </div>
+          <div className="modal-footer fixed">
+            <button onClick={() => setIsSkillsModalOpen(false)} className="btn btn--secondary">Cancelar</button>
+            <button onClick={handleSkillsSave} className="btn btn--primary" disabled={isLoading}>
+              {isLoading ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <Modal 
         isOpen={modalState.isOpen}
         onClose={() => setModalState({ ...modalState, isOpen: false })}
@@ -148,41 +268,63 @@ function AccountPage() {
           </div>
 
           {/* Contêiner de Dados */}
-          <form className="profile-card" onSubmit={handleInfoSave}>
-            <div className="form-header">
-              <h3 className="info-title">Dados</h3>
-              <button type="button" className="edit-icon-btn" onClick={() => setIsEditing(!isEditing)}>
-                <PencilIcon />
-              </button>
-            </div>
-
-            <div className="info-grid">
-              <div className="info-field">
-                <label>Nome</label>
-                {isEditing ? <input type="text" name="nome" value={formData.nome} onChange={handleInfoChange} className="info-input"/> : <p className="info-text">{user?.nome}</p>}
-              </div>
-              <div className="info-field">
-                <label>Data de Nascimento</label>
-                {isEditing ? <input type="date" name="data_nascimento" value={formData.data_nascimento} onChange={handleInfoChange} className="info-input" /> : <p className="info-text">{formData.data_nascimento || 'Não informado'}</p>}
-              </div>
-              <div className="info-field">
-                <label>Telefone</label>
-                {isEditing ? <input type="tel" name="telefone" value={formData.telefone} onChange={handleInfoChange} placeholder="(XX) XXXXX-XXXX" className="info-input" /> : <p className="info-text">{user?.telefone || 'Não informado'}</p>}
-              </div>
-              <div className="info-field">
-                <label>Igreja Local</label>
-                {isEditing ? <input type="text" name="igreja_local" value={formData.igreja_local} onChange={handleInfoChange} placeholder="Não informado" className="info-input" /> : <p className="info-text">{user?.igreja_local || 'Não informado'}</p>}
-              </div>
-            </div>
-            
-            {isEditing && (
-              <div className="editing-actions">
-                <button type="submit" className="btn btn--primary" disabled={isLoading}>
-                  {isLoading ? "Salvando..." : "Salvar Alterações"}
+          <div className='profile-card'>
+            <form className="profile-form-card" onSubmit={handleInfoSave}>
+              <div className="form-header">
+                <h3 className="info-title">Dados</h3>
+                <button type="button" className="edit-icon-btn" onClick={() => setIsEditing(!isEditing)}>
+                  <PencilIcon />
                 </button>
               </div>
-            )}
-          </form>
+
+              <div className="info-grid">
+                <div className="info-field">
+                  <label>Nome</label>
+                  {isEditing ? <input type="text" name="nome" value={formData.nome} onChange={handleInfoChange} className="form-input"/> : <p className="info-text">{user?.nome}</p>}
+                </div>
+                <div className="info-field">
+                  <label>Data de Nascimento</label>
+                  {isEditing ? <input type="date" name="data_nascimento" value={formData.data_nascimento} onChange={handleInfoChange} className="form-input" /> : <p className="info-text">{formData.data_nascimento || 'Não informado'}</p>}
+                </div>
+                <div className="info-field">
+                  <label>Telefone</label>
+                  {isEditing ? <input type="tel" name="telefone" value={formData.telefone} onChange={handleInfoChange} placeholder="(XX) XXXXX-XXXX" className="form-input" /> : <p className="info-text">{user?.telefone || 'Não informado'}</p>}
+                </div>
+                <div className="info-field">
+                  <label>Igreja Local</label>
+                  {isEditing ? <input type="text" name="igreja_local" value={formData.igreja_local} onChange={handleInfoChange} placeholder="Não informado" className="form-input" /> : <p className="info-text">{user?.igreja_local || 'Não informado'}</p>}
+                </div>
+              </div>
+              
+              {isEditing && (
+                <div className="editing-actions">
+                  <button type="button" className="btn btn--secondary" onClick={handleDeleteClick}>
+                    {"Deletar Conta"}
+                  </button>
+                  <button type="submit" className="btn btn--primary" disabled={isLoading}>
+                    {isLoading ? "Salvando..." : "Salvar Alterações"}
+                  </button>
+                </div>
+              )}
+            </form>
+
+            {/* --- NOVA SEÇÃO DE FUNÇÕES --- */}
+            <div className="profile-form-section">
+              <div className="form-header">
+                <h3 className="info-title">Funções</h3>
+                <button type="button" className="edit-icon-btn" onClick={openSkillsModal}><PencilIcon /></button>
+              </div>
+              <div className="skills-display-grid">
+                {userSkills.length > 0 ? userSkills.map(skill => (
+                  <div key={skill.id} className="skill-chip">
+                    {skill.nome}
+                  </div>
+                )) : (
+                  <p className="empty-list-message">Nenhuma função selecionada.</p>
+                )}
+              </div>
+            </div>
+          </div>
           
           <button type="button" className="btn btn--secondary logout-button" onClick={handleLogoutClick}>
             <LogoutIcon /> Sair

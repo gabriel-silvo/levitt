@@ -1,6 +1,6 @@
-/* levitt-frontend/src/App.css - VERSÃO REFATORADA */
+/* levitt-frontend/src/App.css - VERSÃO REFATORADA FINAL */
 
-/* --- RESET E ESTILOS GLOBAIS --- */
+/* --- 1. ESTILOS GLOBAIS E RESET --- */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -11,13 +11,14 @@ html, body, #root {
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 body {
-  background-color: #242424;
+  background-color: #1e1e1e;
 }
 
-/* --- SISTEMA DE BOTÕES PADRONIZADO --- */
+/* --- 2. SISTEMA DE BOTÕES PADRONIZADO --- */
 .btn {
   padding: 0.7rem 1.5rem;
   border-radius: 8px;
@@ -30,9 +31,9 @@ body {
   display: inline-flex;
   justify-content: center;
   align-items: center;
+  gap: 0.5rem;
 }
 
-/* Modificador Primário (Ações Principais) */
 .btn--primary {
   background-color: #646cff;
   color: white;
@@ -43,18 +44,17 @@ body {
   border-color: #535bf2;
 }
 
-/* Modificador Secundário (Ações de Suporte) */
 .btn--secondary {
   background-color: #444;
   color: #f0f0f0;
   border: 1px solid #555;
 }
-.btn--secondary:hover {
+.btn.btn--secondary:hover {
   background-color: #555;
   border-color: #666;
+  color: #f0f0f0; /* Garante que o texto não mude de cor */
 }
 
-/* Modificador de Perigo (Ações Destrutivas) */
 .btn--danger {
   background-color: #444;
   color: #f0f0f0;
@@ -66,173 +66,21 @@ body {
   color: white;
 }
 
-/* --- LAYOUTS PRINCIPAIS --- */
-.App {
-  width: 100%;
-  min-height: 100%;
-  color: rgba(255, 255, 255, 0.87);
-}
-
-.App--loggedout {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.main-layout { /* Classe genérica para HomePage e SettingsPage */
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-header {
-  width: 100%;
-  background-color: #1a1a1a;
-  padding: 0 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-  border-bottom: 1px solid #444;
-  flex-shrink: 0;
-}
-.main-header .header-title { text-align: center; flex-grow: 1; font-size: 1.2rem; }
-.main-header .header-side { flex-basis: 120px; flex-shrink: 0; }
-.main-header .header-side:last-child { text-align: right; }
-.main-header .logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: inherit; }
-
-.main-content {
-  padding: 2rem;
-  flex-grow: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* --- COMPONENTES ESPECÍFICOS --- */
-
-/* LoginPage */
-.login-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 2rem;
-  border: 1px solid #444;
-  border-radius: 8px;
-  background-color: #2f2f2f;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-}
-.login-form { display: flex; flex-direction: column; gap: 1rem; }
-.google-login-button-container > div { width: 100% !important; }
-.divider { display: flex; align-items: center; text-align: center; color: #888; font-size: 0.9em; }
-.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #444; }
-.divider:not(:empty)::before { margin-right: .25em; }
-.divider:not(:empty)::after { margin-left: .25em; }
-.toggle-auth p { font-size: 0.9em; color: #ccc; }
-.toggle-auth span { color: #64b5f6; cursor: pointer; text-decoration: underline; }
-.password-wrapper { position: relative; display: flex; align-items: center; }
-.password-wrapper input { width: 100%; padding-right: 40px; }
-.eye-btn { position: absolute; right: 5px; height: 30px; width: 30px; background: transparent; border: none; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #888; }
-.eye-btn:hover { background-color: #444; }
-
-/* Header Dropdown */
-.user-menu { position: relative; }
-.avatar-container { cursor: pointer; }
-.avatar-image, .avatar-initials { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-.avatar-initials { background-color: #646cff; color: white; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; font-weight: bold; }
-.dropdown-menu { position: absolute; top: 50px; right: 0; background-color: #2f2f2f; border: 1px solid #444; border-radius: 8px; width: 220px; z-index: 10; box-shadow: 0 4px 8px rgba(0,0,0,0.2); overflow: hidden; }
-.dropdown-header { padding: 1rem; border-bottom: 1px solid #444; display: flex; flex-direction: column; }
-.dropdown-header small { font-size: 0.8em; color: #aaa; word-break: break-all; }
-.dropdown-menu ul { list-style: none; margin: 0; padding: 0; }
-.dropdown-link { display: block; width: 100%; text-align: left; padding: 0.8rem 1rem; background: transparent; border: none; color: rgba(255, 255, 255, 0.87); text-decoration: none; font-size: 1em; cursor: pointer; }
-.dropdown-link:hover { background-color: #646cff; color: #FFFFFF; }
-
-/* Em App.css, substitua os estilos antigos da AccountPage por estes */
-
-.account-content { 
-  display: flex; 
-  flex-direction: column;
-  justify-content: center; 
-  align-items: center; 
-  gap: 1.5rem;
-}
-
-/* Seção de Identidade (Avatar, Nome, Email) */
-.profile-identity {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.avatar-upload-label { display: block; cursor: pointer; }
-.avatar-preview-container { 
-  position: relative; 
-  width: 120px; 
-  height: 120px; 
-  margin-bottom: 1rem;
-}
-.avatar-preview { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #3a3a3a; }
-.avatar-preview-container:hover .avatar-preview { filter: brightness(0.7); }
-.avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; opacity: 0; transition: opacity 0.2s; }
-.avatar-preview-container:hover .avatar-overlay { opacity: 1; }
-
-.user-name-display { margin: 0; font-size: 2rem; font-weight: 600; }
-.user-email-display { margin: 0.25rem 0 0 0; color: #aaa; font-size: 1em; }
-
-/* Contêiner de Dados */
-.profile-card {
-  background-color: #2f2f2f;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 700px;
-  padding: 2rem 2.5rem;
-}
-
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #444;
-  padding-bottom: 1rem;
-}
-
-.info-title {
-  margin: 0;
-  font-weight: 600;
-  color: #ccc;
-  font-size: 1.1rem;
-}
-
-.edit-icon-btn {
-  background: none;
-  border: none;
-  color: #aaa;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  display: flex;
-}
-.edit-icon-btn:hover {
-  background-color: #444;
+/* CORREÇÃO: A classe 'success' agora usa a cor primária */
+.btn--success {
+  background-color: #27AE60;
   color: white;
+  border-color: #27AE60;
+}
+.btn--success:hover {
+  background-color: #2ECC71; /* Verde mais escuro */
+  border-color: #2ECC71;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem; /* Espaçamento consistente */
-}
+/* --- 3. COMPONENTES REUTILIZÁVEIS --- */
 
-.info-field { display: flex; flex-direction: column; }
-.info-field label { font-size: 0.85em; color: #ccc; margin-bottom: 0.5rem; text-align: left; }
-
-/* Regra unificada para garantir espaçamento consistente */
-.info-input, .info-text { 
+/* Formulários */
+.form-input, .info-text { 
   width: 100%; 
   background-color: #242424; 
   border: 1px solid #555; 
@@ -241,32 +89,441 @@ body {
   font-family: inherit; 
   font-size: 1em; 
   color: white; 
-  min-height: 44px; /* Chave para a consistência */
-  margin: 0; /* Remove margens padrão */
+  min-height: 44px;
+  margin: 0;
 }
-.info-input:focus { border-color: #646cff; outline: none; }
+.form-input:focus { border-color: #646cff; outline: none; }
 .info-text { display: flex; align-items: center; }
+textarea.form-input { min-height: 80px; resize: vertical; }
 
-.editing-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-  grid-column: 1 / -1;
-}
-
-/* Botão de Sair */
-.logout-button {
-  max-width: 700px;
-  width: 100%;
-  gap: 0.5rem;
-}
-
-/* --- COMPONENTES DE UTILIDADE --- */
-.error-message { color: #ff8a80; background-color: #4e2a2a; border: 1px solid #ff5252; border-radius: 4px; padding: 0.5rem; font-size: 0.9em; margin: 0.5rem 0; }
-.success-message { color: #81c784; margin-top: 1rem; }
+/* Modal (Pop-up) */
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
 .modal-content { background-color: #2f2f2f; padding: 2rem; border-radius: 8px; width: 90%; max-width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; }
 .modal-title { margin-top: 0; margin-bottom: 1rem; }
-.modal-body { margin-bottom: 2rem; color: #ccc; line-height: 1.5; }
+.modal-body { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; color: #ccc; line-height: 1.5; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; }
+.invite-code-wrapper { display: flex; align-items: center; gap: 1rem; }
+.invite-code-box { background-color: #242424; border: 1px dashed #646cff; border-radius: 8px; padding: 0.8rem 1rem; font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; color: #f0f0f0; text-align: center; flex-grow: 1; }
+.modal-body small { color: #888; }
+.modal-form { display: flex; flex-direction: column; gap: 1rem; text-align: left; }
+
+/* Mensagens de Feedback */
+.error-message { color: #ff8a80; background-color: #4e2a2a; border: 1px solid #ff5252; border-radius: 4px; padding: 0.5rem; font-size: 0.9em; margin: 0.5rem 0; }
+.success-message { color: #81c784; margin-top: 1rem; }
+
+/* --- 4. LAYOUTS DE PÁGINA --- */
+
+.App { width: 100%; min-height: 100%; }
+.App--loggedout { display: flex; justify-content: center; align-items: center; background-color: #242424; height: 100%; }
+.main-layout { width: 100%; min-height: 100%; display: flex; flex-direction: column; }
+.home-layout { display: flex; height: 100vh; width: 100vw; }
+
+.main-header { width: 100%; background-color: #1a1a1a; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; height: 60px; border-bottom: 1px solid #444; flex-shrink: 0; }
+.main-header .header-title { text-align: center; flex-grow: 1; font-size: 1.2rem; }
+.main-header .header-side { flex-basis: 120px; flex-shrink: 0; }
+.main-header .header-side:last-child { text-align: right; }
+.main-header .logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: inherit; }
+
+.main-content { flex-grow: 1; overflow-y: auto; padding: 2.5rem 3rem; }
+
+/* --- 5. ESTILOS DE PÁGINAS E COMPONENTES ESPECÍFICOS --- */
+
+/* LoginPage */
+.login-container { display: flex; flex-direction: column; gap: 1rem; padding: 2rem; border: 1px solid #444; border-radius: 8px; background-color: #2f2f2f; width: 90%; max-width: 400px; text-align: center; }
+.login-form { display: flex; flex-direction: column; gap: 1rem; }
+.google-login-button-container > div { width: 100% !important; }
+.divider { display: flex; align-items: center; text-align: center; color: #888; font-size: 0.9em; }
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #444; }
+.divider:not(:empty)::before { margin-right: .25em; }
+.divider:not(:empty)::after { margin-left: .25em; }
+.toggle-auth p { font-size: 0.9em; color: #ccc; margin: 0.5rem 0 0 0; }
+.toggle-auth span { color: #64b5f6; cursor: pointer; text-decoration: underline; }
+.password-wrapper { position: relative; display: flex; align-items: center; }
+.password-wrapper .form-input { padding-right: 40px; }
+.eye-btn { position: absolute; right: 5px; height: 30px; width: 30px; background: transparent; border: none; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #888; }
+.eye-btn:hover { background-color: #444; }
+
+/* Sidebar (usado em HomePage) */
+.sidebar { width: 250px; flex-shrink: 0; background-color: #242424; display: flex; flex-direction: column; padding: 1.5rem; border-right: 1px solid #3a3a3a; }
+.sidebar-header { margin-bottom: 2rem; }
+.sidebar-logo { font-size: 1.8rem; margin: 0; color: #f0f0f0; }
+.sidebar-nav { flex-grow: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.nav-link { display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem; border-radius: 8px; text-decoration: none; color: #aaa; font-weight: 500; transition: background-color 0.2s, color 0.2s; }
+.nav-link:hover { background-color: #3a3a3a; color: #f0f0f0; }
+.nav-link.active { background-color: #646cff; color: white; }
+.nav-icon { width: 20px; height: 20px; }
+.sidebar-footer { margin-top: 2rem; border-top: 1px solid #3a3a3a; padding-top: 1rem; }
+.user-profile-link { padding: 0.5rem; }
+.sidebar-avatar-image, .sidebar-avatar-initials { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.sidebar-avatar-initials { background-color: #646cff; color: white; display: flex; justify-content: center; align-items: center; font-size: 1rem; font-weight: bold; }
+.user-profile-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Dashboard (usado em HomePage) */
+.page-header { margin-bottom: 2.5rem; }
+.page-header h2 { margin: 0; font-size: 2rem; font-weight: 600; }
+.page-header p { margin: 0.25rem 0 0 0; color: #aaa; }
+.dashboard-section { margin-bottom: 2.5rem; }
+.section-header { display: flex; justify-content: flex-start; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.section-title { margin: 0; font-size: 1.2rem; font-weight: 600; }
+.add-button { display: flex; justify-content: center; align-items: center; width: auto; height: 32px; padding: 0 12px; border-radius: 8px; background-color: #3a3a3a; color: #aaa; font-size: 1.2rem; font-weight: 500; text-decoration: none; transition: all 0.2s; border: 1px solid #555; }
+.add-button:hover { background-color: #646cff; color: white; border-color: #646cff; }
+.horizontal-scroll-list { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; }
+.horizontal-scroll-list::-webkit-scrollbar { height: 8px; }
+.horizontal-scroll-list::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+/* --- ESTILO BASE UNIFICADO PARA TODOS OS CARDS DO DASHBOARD --- */
+.dashboard-card {
+  background-color: #2f2f2f;
+  border-radius: 12px;
+  padding: 1.5rem;
+  flex-shrink: 0;
+  width: 280px;
+  min-height: 120px; /* Garante uma altura mínima consistente */
+  border: 1px solid #3a3a3a;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Alinha o conteúdo verticalmente */
+}
+
+/* Estilos para o título principal do card (seja de evento ou ministério) */
+.dashboard-card h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* Estilos para o subtítulo/parágrafo do card */
+.dashboard-card p {
+  margin: 0.25rem 0 0 0;
+  color: #f0f0f0;
+  font-size: 1rem;
+}
+
+/* Estilos para as informações secundárias (rodapé do card) */
+.dashboard-card-details {
+  margin-top: 1.5rem;
+  font-size: 0.9em;
+}
+.dashboard-card-details p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.9em;
+}
+.dashboard-card-details span {
+  margin-top: 0.25rem;
+  color: #888;
+  display: block;
+}
+
+.add-card-link { text-decoration: none; color: inherit; }
+.add-card { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 2px dashed #444; transition: border-color 0.2s, background-color 0.2s; height: 100%; }
+.add-card:hover { border-color: #646cff; background-color: #3a3a3a; }
+.plus-icon { font-size: 3rem; font-weight: 200; color: #646cff; line-height: 1; }
+.add-card p { margin: 0.5rem 0 0 0; font-weight: 500; }
+.empty-list-message { color: #888; width: 100%; }
+
+/* AccountPage & CreateMinistryPage */
+.account-content { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.5rem; padding-top: 2rem; padding-bottom: 2rem; }
+.profile-identity { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.avatar-upload-label { display: block; cursor: pointer; }
+/* CORREÇÃO DO AVATAR */
+.avatar-preview-container { position: relative; width: 120px; height: 120px; margin-bottom: 1rem; border-radius: 50%; overflow: hidden; }
+.avatar-preview { width: 100%; height: 100%; object-fit: cover; }
+.avatar-preview-container:hover .avatar-preview { filter: brightness(0.7); }
+.avatar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; opacity: 0; transition: opacity 0.2s; }
+.avatar-preview-container:hover .avatar-overlay { opacity: 1; }
+.user-name-display { margin: 0; font-size: 2rem; font-weight: 600; }
+.user-email-display { margin: 0.25rem 0 0 0; color: #aaa; font-size: 1em; }
+/* CORREÇÃO DO ESPAÇAMENTO DO FORMULÁRIO */
+.profile-card { background-color: #2f2f2f; border-radius: 12px; width: 100%; max-width: 700px; padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 2rem; padding: 2.5rem; }
+.form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0; padding-bottom: 1.5rem; border-bottom: 1px solid #444; }
+.info-title { margin: 0; font-weight: 600; color: #ccc; font-size: 1.1rem; }
+.edit-icon-btn { background: none; border: none; color: #aaa; cursor: pointer; padding: 0.5rem; border-radius: 50%; display: flex; }
+.edit-icon-btn:hover { background-color: #444; color: white; }
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem; }
+.info-field { display: flex; flex-direction: column; }
+.info-field label { font-size: 0.85em; color: #ccc; margin-bottom: 0.5rem; text-align: left; }
+.editing-actions { display: flex; justify-content: flex-end; gap: 1rem; grid-column: 1 / -1; margin-top: 2rem; }
+.logout-button { max-width: 700px; width: 100%; }
+
+/* Estiliza o link que envolve os cards no dashboard */
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block; /* Garante que o link ocupe o espaço do card */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card-link:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+/* Cria um grid para a lista de membros */
+.member-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Estiliza o card de cada membro */
+.member-card {
+  background-color: #2f2f2f;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #3a3a3a;
+  position: relative; /* Necessário para o botão de gerenciar */
+}
+
+/* Estiliza o avatar do membro (imagem ou iniciais) */
+.member-avatar-image, .member-avatar-initials {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.member-avatar-initials {
+  background-color: #444;
+  color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Estiliza a área de informações do membro */
+.member-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Evita que textos longos quebrem o layout */
+}
+
+.member-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Adiciona '...' se o nome for muito longo */
+}
+
+.member-roles {
+  font-size: 0.85em;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.manage-member-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  margin-left: auto; /* Empurra o botão para a direita */
+  transition: all 0.2s;
+}
+.manage-member-btn:hover {
+  background-color: #444;
+  color: white;
+}
+.manage-member-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.modal-divider {
+  border: none;
+  border-top: 1px solid #444;
+  margin: 1.5rem 0;
+}
+
+.page-footer-actions {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #444;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.roles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.role-chip {
+  background-color: #444;
+  border: 1px solid #555;
+  color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.role-chip:hover {
+  background-color: #555;
+  border-color: #666;
+}
+
+.role-chip.selected {
+  background-color: #646cff;
+  border-color: #535bf2;
+  color: white;
+  font-weight: 600;
+}
+
+/* Divisor horizontal dentro do card */
+.divider-horizontal {
+  border-top: 1px solid #444;
+  margin: 1.5rem 0;
+}
+
+.profile-form-section {
+  width: 100%;
+}
+
+/* --- Estilos do Modal de Seleção de Funções --- */
+.skills-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 60vh; /* Altura máxima do conteúdo do modal */
+  text-align: left;
+}
+
+.search-input {
+  margin-bottom: 1rem;
+}
+
+.skills-list {
+  flex-grow: 1;
+  overflow-y: auto; /* A mágica da barra de rolagem */
+  padding-right: 10px; /* Espaço para a barra de rolagem */
+}
+
+/* Rodapé fixo para o modal */
+.modal-footer.fixed {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #444;
+}
+
+/* --- Estilos da Exibição de Funções na Página --- */
+.skills-display-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 colunas */
+  gap: 0.75rem;
+  margin-top: 2.5rem; 
+}
+
+.skill-chip {
+  background-color: #242424;
+  border: 1px solid #555;
+  color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.member-roles-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 4px;
+}
+
+.role-tag {
+  background-color: #444;
+  color: #ddd;
+  padding: 2px 8px;
+  border-radius: 10px; /* Elipse */
+  font-size: 0.75em;
+  font-weight: 500;
+}
+
+.modal-subtitle {
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9em;
+  color: #aaa;
+  text-align: left;
+}
+
+.skill-item {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center; /* <<< IMPORTANTE: Alinha o ícone e o texto verticalmente */
+  gap: 0.75rem;
+  margin-bottom: 5px;
+}
+.skill-item:hover {
+  background-color: #3a3a3a;
+}
+.skill-item.selected {
+  background-color: #646cff;
+  color: white;
+  font-weight: 500;
+}
+
+/* Agora, o estilo corrigido para o item de líder */
+.skill-item--leader {
+  /* Herda o layout do .skill-item */
+  background-color: #3a3a3a;
+  border: 1px solid #f9a825;
+  color: #fdd835;
+  font-weight: 600;
+}
+
+.skill-item--leader:hover {
+  background-color: #4a4a4a;
+  border-color: #fbc02d;
+  color: #fbc02d;
+}
+
+/* A CORREÇÃO PRINCIPAL: Controla o tamanho do ícone SVG */
+.skill-item--leader svg {
+  width: 18px;  /* <<< DEFINE A LARGURA DO ÍCONE */
+  height: 18px; /* <<< DEFINE A ALTURA DO ÍCONE */
+  stroke: #fdd835;
+  flex-shrink: 0; /* Impede que o ícone seja espremido */
+}
+
+.skill-item--leader.selected,
+.skill-item--leader.selected:hover {
+  background-color: #fbc02d; /* Um dourado mais vibrante */
+  color: #1e1e1e; /* Texto escuro para melhor contraste */
+  border-color: #f9a825;
+}
+
+/* Garante que o ícone da estrela também fique escuro quando selecionado */
+.skill-item--leader.selected svg {
+  stroke: #1e1e1e;
+}
+
+/* Em App.css */
+.event-details-content { display: flex; flex-direction: column; gap: 1rem; text-align: left; }
+.event-details-header p { margin: 0.25rem 0; }
+.rsvp-section h4, .participants-section h4 { margin: 0.5rem 0; font-size: 1rem; }
+.rsvp-buttons { display: flex; gap: 1rem; }
+.participants-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 150px; overflow-y: auto; }
+.participant-item { display: flex; align-items: center; gap: 0.75rem; background-color: #242424; padding: 0.5rem; border-radius: 6px; }
+.participant-item .member-avatar-image, .participant-item .member-avatar-initials { width: 32px; height: 32px; font-size: 1rem; }

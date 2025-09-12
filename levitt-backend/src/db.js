@@ -16,3 +16,5 @@ const pool = new Pool({
 module.exports = {
   query: (text, params) => pool.query(text, params),
 };
+
+module.exports = pool; // Exporte o pool inteiro, e não um objeto com um método query.

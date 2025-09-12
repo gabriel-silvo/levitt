@@ -6,6 +6,8 @@ import { useAuth } from './hooks/useAuth';
 import LoginPage from './components/LoginPage';
 import HomePage from './components/HomePage';
 import AccountPage from './components/AccountPage';
+import CreateMinistryPage from './components/CreateMinistryPage';
+import MinistryDetailsPage from './components/MinistryDetailsPage';
 import './App.css';
 
 const GOOGLE_CLIENT_ID = "714055899330-glppheb0obn5hmt3i24337u7ussq2joj.apps.googleusercontent.com";
@@ -27,6 +29,14 @@ function App() {
           <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
+          <Route 
+            path="/ministries/new" 
+            element={<ProtectedRoute><CreateMinistryPage /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/ministries/:id" 
+            element={<ProtectedRoute><MinistryDetailsPage /></ProtectedRoute>} 
+          />
         </Routes>
       </div>
     </GoogleOAuthProvider>

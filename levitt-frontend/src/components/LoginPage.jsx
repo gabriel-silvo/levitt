@@ -1,7 +1,7 @@
 // levitt-frontend/src/components/LoginPage.jsx
 
 import React, { useState } from 'react';
-import axios from 'axios'; // Importamos o Axios
+import api from '../services/api';
 import { GoogleLogin } from '@react-oauth/google'; // Importa o componente de login
 import { useAuth } from '../hooks/useAuth.jsx';
 import GoogleLogo from './GoogleLogo'; // Importa o nosso logo SVG
@@ -26,11 +26,11 @@ function LoginPage() {
 
   const handleEmailAuth = async (event) => {
     event.preventDefault();
-    setError(''); // Limpa erros anteriores
+    setError('');
 
     if (isRegistering && senha !== confirmacaoSenha) {
       setError('As senhas não coincidem.');
-      return; // Interrompe a função se as senhas forem diferentes
+      return;
     }
 
     const userData = { nome, email, senha };
@@ -39,23 +39,19 @@ function LoginPage() {
       let response;
       if (isRegistering) {
         // --- LÓGICA DE REGISTRO ---
-        response = await axios.post(`${API_URL}/register`, userData);
+        // CORREÇÃO: Usamos 'api.post' e removemos a URL completa
+        response = await api.post('/register', userData);
         console.log('Resposta do registro:', response.data);
-        // Após o registro bem-sucedido, podemos logar o usuário diretamente
-        // ou pedir que ele faça o login. Vamos logá-lo.
         login(response.data.token);
       } else {
         // --- LÓGICA DE LOGIN ---
-        response = await axios.post(`${API_URL}/login`, { email, senha });
+        // CORREÇÃO: Usamos 'api.post' e removemos a URL completa
+        response = await api.post('/login', { email, senha });
         console.log('Resposta do login:', response.data);
-        // Passamos o token recebido para a função do App.jsx
         login(response.data.token);
       }
     } catch (err) {
-      // Se a API retornar um erro (ex: email já existe, senha errada),
-      // o Axios o captura aqui.
       console.error('Erro de autenticação:', err.response ? err.response.data : err.message);
-      // Exibimos a mensagem de erro que vem da nossa API
       setError(err.response?.data?.error || 'Ocorreu um erro. Tente novamente.');
     }
   };
@@ -65,12 +61,11 @@ function LoginPage() {
     setError('');
     console.log("Token do Google recebido:", credentialResponse);
     try {
-      // Enviamos o token do Google para o nosso backend
-      const response = await axios.post(`${API_URL}/auth/google-login`, {
+      // CORREÇÃO: Usamos 'api.post' e removemos a URL completa
+      const response = await api.post('/auth/google-login', {
         token: credentialResponse.credential,
       });
 
-      // Se o backend responder com sucesso, ele nos dará o nosso próprio token de app
       console.log("Resposta do nosso backend:", response.data);
       login(response.data.token);
     } catch (err) {
@@ -112,6 +107,7 @@ function LoginPage() {
           <input 
             type="text" 
             placeholder="Seu Nome" 
+            className="form-input"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             required 
@@ -121,7 +117,8 @@ function LoginPage() {
         {/* O campo "Email" aparece tanto no login quanto no registro */}
         <input 
           type="email" 
-          placeholder="Email" 
+          placeholder="Email"
+          className="form-input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required 
@@ -132,6 +129,7 @@ function LoginPage() {
           <input
             type={showPassword ? 'text' : 'password'}
             placeholder="Senha"
+            className="form-input"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             required
@@ -147,6 +145,7 @@ function LoginPage() {
             <input
               type={showConfirmationPassword ? 'text' : 'password'}
               placeholder="Confirme a Senha"
+              className="form-input"
               value={confirmacaoSenha}
               onChange={(e) => setConfirmacaoSenha(e.target.value)}
               required
